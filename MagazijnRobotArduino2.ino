@@ -4,7 +4,7 @@
 #include <Wire.h>
 
 Motor z_axisMotor = Motor(3, 12);
-StatusLed statusLed = StatusLed(11,6,5);
+StatusLed statusLed = StatusLed(10,6,5);
 int x = 0;
 
 void setup()
@@ -25,11 +25,10 @@ void receiveEvent(int bytes){
   while (Wire.available() > 0) {
     msg = msg + char(Wire.read());
   }
-
   if(msg == "off"){
     statusLed.changeColor(255,0,0);
   } else if (msg == "man"){
-    statusLed.changeColor(255,140,0);
+    statusLed.changeColor(255,15,0);
   } else if (msg == "aut"){
     statusLed.changeColor(0,255,0);
   }
