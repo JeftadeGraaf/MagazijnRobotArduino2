@@ -12,13 +12,13 @@ void Joystick::registerPins(){
 }
 
 int Joystick::readZAxis(){
-    int xValue = map(analogRead(this->zPin), 0, 1023, 0, 255);
-    if(xValue >= 127 - this -> deadzone && xValue <= 127 + this-> deadzone){
+    int zValue = map(analogRead(this->zPin), 0, 1023, 0, 255);
+    if(zValue >= 127 - this -> deadzone && zValue <= 127 + this-> deadzone){
         return 0;
-    } else if(xValue < 127){
-        xValue = (127 - xValue) * -1;
+    } else if(zValue < 127){
+        zValue = (127 - zValue) * -1;
     } else {
-        xValue = map(xValue, 127, 255, 0, 127);
+        zValue = map(zValue, 127, 255, 0, 127);
     }
-    return xValue;
+    return zValue * -1;
 }
