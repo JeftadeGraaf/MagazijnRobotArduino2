@@ -9,7 +9,6 @@
 #define zAxisBackSwitch 4
 bool zAxisIsOut;
 bool isFalling = false;
-unsigned long fallTimer = 0;
 
 Motor z_axisMotor = Motor(11, 13, 8, A1);
 Joystick joystick = Joystick(A2, 30);
@@ -82,7 +81,6 @@ void sendMessage(int address, String msg){
 
 void handleManualInput(){
   int zValue = joystick.readZAxis();
-  Serial.println(zValue);
   if((zValue == 0 || !zAxisIsOut && zValue > 0) || zAxisIsOut){
     z_axisMotor.setManualPower(zValue);
   } else {
@@ -110,13 +108,14 @@ void checkForFalling(){
   if(!isFalling){
     if(analogRead(fallSwitch) < 100){
       isFalling = true; 
-      fallTimer = millis();
     }
   } else {
-    if(analogRead(fallSwitch) < 100 && (millis() - fallTimer <= 1000)){
+    if(analogRead(fallSwitch) < 100 && zAxisIsOut){
       z_axisMotor.setManualPower(-127);
     } else {
       z_axisMotor.setManualPower(0);
+      isFalling = false;
+      Serial.println("turning off");
       sendMessage(firstArduinoAddress, "off");
     }
   }
