@@ -31,6 +31,14 @@ void setup()
     statusLed.setupPins();
 }
 
+void requestEvent()
+{
+  if(shouldTurnOff){
+    Wire.write("off");
+    shouldTurnOff = false;
+  } 
+}
+
 void loop()
 
 {
@@ -66,13 +74,6 @@ void receiveEvent(int bytes){
     switchToAutomaticMode();
   }
   
-}
-
-void requestEvent(int bytes){
-  if(shouldTurnOff){
-    Wire.write("off");
-    shouldTurnOff = false;
-  } 
 }
 
 void handleManualInput(){
