@@ -4,8 +4,8 @@
 #include "Src/JoystickModule/Joystick.h"
 #include <Wire.h>
 
-const int fallSwitch = A3; ///white vcc, red connection, brown ground
-bool shouldTurnOff = false;
+#define firstArduinoAddress 8
+#define fallSwitch A3               ///white vcc, red connection, brown ground
 bool isFalling = false;
 unsigned long fallTimer = 0;
 
@@ -28,17 +28,9 @@ void setup()
     z_axisMotor.registerPins();
     Wire.begin(9);
     Wire.onReceive(receiveEvent);
-    Wire.onRequest(requestEvent);
     statusLed.setupPins();
 }
 
-void requestEvent()
-{
-  if(shouldTurnOff){
-    Wire.write("off");
-    shouldTurnOff = false;
-  } 
-}
 
 void loop()
 
@@ -62,6 +54,7 @@ void loop()
 }
 
 void receiveEvent(int bytes){
+  Serial.println("ReceiveEvent");
   String msg = "";
   while (Wire.available() > 0) {
     msg = msg + char(Wire.read());
@@ -73,7 +66,15 @@ void receiveEvent(int bytes){
   } else if (msg == "aut"){
     switchToAutomaticMode();
   }
-  
+  Serial.println(msg);
+}
+
+void sendMessage(int address, String msg){
+    Wire.beginTransmission(address);
+    Wire.write(msg.c_str());
+    Wire.endTransmission();
+    Serial.println("message sent");
+    Serial.println(msg);
 }
 
 void handleManualInput(){
@@ -109,7 +110,7 @@ void checkForFalling(){
       z_axisMotor.setManualPower(-127);
     } else {
       z_axisMotor.setManualPower(0);
-      shouldTurnOff = true;
+      sendMessage(firstArduinoAddress, "off");
     }
   }
 }
