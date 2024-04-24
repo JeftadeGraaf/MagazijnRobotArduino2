@@ -6,6 +6,8 @@
 
 #define firstArduinoAddress 8
 #define fallSwitch A3               ///white vcc, red connection, brown ground
+#define zAxisBackSwitch 4
+bool zAxisIsOut;
 bool isFalling = false;
 unsigned long fallTimer = 0;
 
@@ -14,27 +16,30 @@ Joystick joystick = Joystick(A2, 30);
 StatusLed statusLed = StatusLed(10,6,5);
 
 enum RobotState{
-    automatic,
-    manual,
-    off
+  automatic,
+  manual,
+  off
 };
 
 RobotState currentState = manual;
 
 void setup()
 {
-    Serial.begin(9600);
-    pinMode(fallSwitch, INPUT);
-    z_axisMotor.registerPins();
-    Wire.begin(9);
-    Wire.onReceive(receiveEvent);
-    statusLed.setupPins();
+  Serial.begin(9600);
+  pinMode(fallSwitch, INPUT);
+  pinMode(zAxisBackSwitch, INPUT_PULLUP);
+  zAxisIsOut = digitalRead(zAxisBackSwitch);
+  z_axisMotor.registerPins();
+  Wire.begin(9);
+  Wire.onReceive(receiveEvent);
+  statusLed.setupPins();
 }
 
 
 void loop()
-
 {
+  handleEndOfAxisDetection();
+
   switch (currentState){
         case automatic:
             checkForFalling();
@@ -46,15 +51,16 @@ void loop()
             }
             break;
         case off:
+            return;
             break;
         default:
             currentState = off;
+            return;
             break;
-    }
+  }
 }
 
 void receiveEvent(int bytes){
-  Serial.println("ReceiveEvent");
   String msg = "";
   while (Wire.available() > 0) {
     msg = msg + char(Wire.read());
@@ -66,20 +72,22 @@ void receiveEvent(int bytes){
   } else if (msg == "aut"){
     switchToAutomaticMode();
   }
-  Serial.println(msg);
 }
 
 void sendMessage(int address, String msg){
     Wire.beginTransmission(address);
     Wire.write(msg.c_str());
     Wire.endTransmission();
-    Serial.println("message sent");
-    Serial.println(msg);
 }
 
 void handleManualInput(){
   int zValue = joystick.readZAxis();
-  z_axisMotor.setManualPower(zValue);
+  Serial.println(zValue);
+  if((zValue == 0 || !zAxisIsOut && zValue > 0) || zAxisIsOut){
+    z_axisMotor.setManualPower(zValue);
+  } else {
+    z_axisMotor.setManualPower(0);
+  }
 }
 
 void turnRobotOff(){
@@ -99,7 +107,6 @@ void switchToAutomaticMode(){
 }
 
 void checkForFalling(){
-  Serial.println(analogRead(fallSwitch));
   if(!isFalling){
     if(analogRead(fallSwitch) < 100){
       isFalling = true; 
@@ -113,4 +120,15 @@ void checkForFalling(){
       sendMessage(firstArduinoAddress, "off");
     }
   }
+}
+
+void handleEndOfAxisDetection(){
+  if(digitalRead(zAxisBackSwitch) != zAxisIsOut){
+    if(zAxisIsOut){
+      sendMessage(firstArduinoAddress, "mz0");
+    } else {
+      sendMessage(firstArduinoAddress, "mz1");
+    }
+  }
+  zAxisIsOut = digitalRead(zAxisBackSwitch);
 }
