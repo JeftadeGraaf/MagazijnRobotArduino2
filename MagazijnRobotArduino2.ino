@@ -7,6 +7,7 @@
 const int fallSwitch = A3; ///white vcc, red connection, brown ground
 bool shouldTurnOff = false;
 bool isFalling = false;
+unsigned long fallTimer = 0;
 
 Motor z_axisMotor = Motor(11, 13, 8, A1);
 Joystick joystick = Joystick(A2, 30);
@@ -42,7 +43,6 @@ void requestEvent()
 void loop()
 
 {
-  
   switch (currentState){
         case automatic:
             checkForFalling();
@@ -101,10 +101,11 @@ void checkForFalling(){
   Serial.println(analogRead(fallSwitch));
   if(!isFalling){
     if(analogRead(fallSwitch) < 100){
-      isFalling = true;
+      isFalling = true; 
+      fallTimer = millis();
     }
   } else {
-    if(analogRead(fallSwitch) < 100){
+    if(analogRead(fallSwitch) < 100 && (millis() - fallTimer <= 1000)){
       z_axisMotor.setManualPower(-127);
     } else {
       z_axisMotor.setManualPower(0);
