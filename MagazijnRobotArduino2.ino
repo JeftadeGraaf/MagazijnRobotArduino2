@@ -38,7 +38,6 @@ void setup()
 void loop()
 {
   handleEndOfAxisDetection();
-
   switch (currentState){
         case automatic:
             checkForFalling();
@@ -110,11 +109,12 @@ void checkForFalling(){
       isFalling = true; 
     }
   } else {
-    if(analogRead(fallSwitch) < 100 && zAxisIsOut){
+    if(zAxisIsOut){
       z_axisMotor.setManualPower(-127);
     } else {
       z_axisMotor.setManualPower(0);
       isFalling = false;
+      turnRobotOff();
       Serial.println("turning off");
       sendMessage(firstArduinoAddress, "off");
     }
