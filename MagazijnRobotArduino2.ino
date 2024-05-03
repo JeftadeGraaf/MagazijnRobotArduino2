@@ -10,6 +10,8 @@
 bool zAxisIsOut;
 bool isFalling = false;
 
+unsigned long lastRequestTime = 0;
+
 Motor z_axisMotor = Motor(11, 13, 8, A1);
 Joystick joystick = Joystick(A2, 30);
 StatusLed statusLed = StatusLed(10,6,5);
@@ -31,12 +33,18 @@ void setup()
   z_axisMotor.registerPins();
   Wire.begin(9);
   Wire.onReceive(receiveEvent);
+  Wire.onRequest(requestEvent);
   statusLed.setupPins();
+  lastRequestTime = millis();
 }
 
 
 void loop()
 {
+  if (millis() - lastRequestTime > 2000) {
+    turnRobotOff();
+  }
+
   handleEndOfAxisDetection();
   switch (currentState){
         case automatic:
@@ -70,6 +78,11 @@ void receiveEvent(int bytes){
   } else if (msg == "aut"){
     switchToAutomaticMode();
   }
+}
+
+void requestEvent(){
+  Wire.write("u");
+  lastRequestTime = millis();
 }
 
 void sendMessage(int address, String msg){
