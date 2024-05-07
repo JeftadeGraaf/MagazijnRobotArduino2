@@ -41,7 +41,7 @@ void setup()
 
 void loop()
 {
-  if (millis() - lastRequestTime > 2000) {
+  if (millis() - lastRequestTime > 1000) {
     turnRobotOff();
   }
 
