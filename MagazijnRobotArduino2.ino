@@ -13,16 +13,20 @@
 #define rotatyPinZb 7
 #define yAxisSwitchUp 12
 #define yAxisSwitchDown 14
+#define allowedYMovement 200
 bool isFalling = false;
 bool tYSwitch = false;
 bool bYSwitch = false;
 bool callibrate = true;
 bool zAxisIsOut = true;
+bool callibrationDone = true;
 
 unsigned long lastRequestTime = 0;
+unsigned long lastReportTime = 0;
 
 int possitionY = 0;
 int possitionZ = 0;
+int startY = 0;
 
 Motor z_axisMotor = Motor(11, 13, 8, A1);
 Joystick joystick = Joystick(A2, 30);
@@ -49,6 +53,8 @@ void setup()
   pinMode(fallSwitch, INPUT);
   pinMode(zAxisBackSwitch, INPUT_PULLUP);
   zAxisIsOut = digitalRead(zAxisBackSwitch);
+  bYSwitch = digitalRead(yAxisSwitchDown);
+  tYSwitch = digitalRead(yAxisSwitchUp);
   z_axisMotor.registerPins();
   Wire.begin(9);
   Wire.onReceive(receiveEvent);
@@ -60,15 +66,17 @@ void setup()
 
 void loop()
 {
-  // Serial.println(possitionY);
-  // Serial.println(possitionZ);
-
   if (millis() - lastRequestTime > 1000) {
     turnRobotOff();
   }
 
+  if (millis() - lastReportTime > 65) {
+    sendMessage(firstArduinoAddress, "py" + String(possitionY));
+    lastReportTime = millis();
+  }
+  
   handleEndOfAxisDetection();
-  // Serial.println(currentState);
+
   switch (currentState){
         case automatic:
             checkForFalling();
@@ -105,6 +113,8 @@ void receiveEvent(int bytes){
     switchToAutomaticMode();
   } else if (msg == "cal") {
     switchToCallibrateMode();
+  } else if (msg == "dcal") {
+    callibrationDone = true;
   }
 }
 
@@ -125,7 +135,7 @@ void handleManualInput(){
     z_axisMotor.setManualPower(zValue);
   } else {
     z_axisMotor.setManualPower(0);
-  }
+  }  
 }
 
 void turnRobotOff(){
@@ -146,7 +156,8 @@ void switchToAutomaticMode(){
 
 void switchToCallibrateMode() {
   currentState = callibrating;
-  statusLed.changeColor(255,0,0);
+  callibrationDone = false;
+  statusLed.changeColor(0,0,255);
 
 }
 
@@ -214,7 +225,6 @@ void readRotartyZ(){
 }
 
 void callibrateMotor() {
-  // Serial.println(digitalRead(zAxisBackSwitch));
   if (digitalRead(zAxisBackSwitch)) {
     z_axisMotor.setManualPower(-255);
   } else {
@@ -222,14 +232,12 @@ void callibrateMotor() {
     possitionZ = 0;
     sendMessage(firstArduinoAddress, "mz0");
   }
-
-  // Serial.println(digitalRead(yAxisSwitchDown));
   if (!digitalRead(yAxisSwitchDown)) {
     sendMessage(firstArduinoAddress, "my1l");
     possitionY = 0;
   }  
 
-  if (!digitalRead(yAxisSwitchDown) && !digitalRead(zAxisBackSwitch)) {
+  if (!digitalRead(yAxisSwitchDown) && !digitalRead(zAxisBackSwitch) && callibrationDone) {
     turnRobotOff();
   }
   
