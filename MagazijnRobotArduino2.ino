@@ -66,7 +66,7 @@ void setup()
 
 void loop()
 {
-  if (millis() - lastRequestTime > 1000) {
+  if (millis() - lastRequestTime > 1300) {
     turnRobotOff();
   }
 
@@ -238,7 +238,7 @@ void callibrateMotor() {
   }  
 
   if (!digitalRead(yAxisSwitchDown) && !digitalRead(zAxisBackSwitch) && callibrationDone) {
-    turnRobotOff();
+    switchToManualMode();
   }
   
 }
