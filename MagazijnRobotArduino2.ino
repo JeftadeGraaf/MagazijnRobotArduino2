@@ -183,29 +183,30 @@ void handleEndOfAxisDetection(){
   if(digitalRead(zAxisBackSwitch) != zAxisIsOut){
     if(zAxisIsOut){
       sendMessage(firstArduinoAddress, "mz0");
+      zAxisIsOut = false;
     } else {
       sendMessage(firstArduinoAddress, "mz1");
+      zAxisIsOut = true;
     }
   }
   if (digitalRead(yAxisSwitchUp) != tYSwitch) {
     if (!tYSwitch) {
       sendMessage(firstArduinoAddress, "my0h");
+      tYSwitch = false;
     } else {
       sendMessage(firstArduinoAddress, "my1h");
+      tYSwitch = true;
     }
   }
   if (digitalRead(yAxisSwitchDown) != bYSwitch) {
     if (!bYSwitch) {
       sendMessage(firstArduinoAddress, "my0l");
+      bYSwitch = false;
     } else {
       sendMessage(firstArduinoAddress, "my1l");
+      bYSwitch = true;
     }
   }
-  
-  
-  zAxisIsOut = digitalRead(zAxisBackSwitch);
-  tYSwitch = digitalRead(yAxisSwitchUp);
-  bYSwitch = digitalRead(yAxisSwitchDown);
 }
 
 void readRotartyY(){
