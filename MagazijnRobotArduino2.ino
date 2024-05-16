@@ -190,7 +190,7 @@ void handleEndOfAxisDetection(){
     }
   }
   if (digitalRead(yAxisSwitchUp) != tYSwitch) {
-    if (!tYSwitch) {
+    if (tYSwitch) {
       sendMessage(firstArduinoAddress, "my0h");
       tYSwitch = false;
     } else {
@@ -199,7 +199,7 @@ void handleEndOfAxisDetection(){
     }
   }
   if (digitalRead(yAxisSwitchDown) != bYSwitch) {
-    if (!bYSwitch) {
+    if (bYSwitch) {
       sendMessage(firstArduinoAddress, "my0l");
       bYSwitch = false;
     } else {
