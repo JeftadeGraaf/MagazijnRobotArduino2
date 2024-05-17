@@ -66,6 +66,7 @@ void setup()
 
 void loop()
 {
+  Serial.println(bYSwitch);
   if (millis() - lastRequestTime > 1300) {
     turnRobotOff();
   }
@@ -158,7 +159,6 @@ void switchToCallibrateMode() {
   currentState = callibrating;
   callibrationDone = false;
   statusLed.changeColor(0,0,255);
-
 }
 
 void checkForFalling(){
@@ -234,7 +234,7 @@ void callibrateMotor() {
     sendMessage(firstArduinoAddress, "mz0");
   }
   if (!digitalRead(yAxisSwitchDown)) {
-    sendMessage(firstArduinoAddress, "my1l");
+    sendMessage(firstArduinoAddress, "my0l");
     possitionY = 0;
   }  
 
