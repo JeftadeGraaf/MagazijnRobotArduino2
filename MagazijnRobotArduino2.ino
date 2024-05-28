@@ -38,7 +38,7 @@ unsigned long lastReportTime = 0;
 volatile int positionY = 0;
 volatile int positionZ = 0;
 int startY = 0;
-int positionsZ[3] = {-900, -720, -480};
+int positionsZ[3] = {-880, -720, -480};
 int nextZ = 0;
 
 Motor z_axisMotor = Motor(11, 13, 8, A1);
@@ -79,7 +79,7 @@ void setup()
 
 void loop()
 {
-  Serial.println(positionY);
+  // Serial.println(positionY);
   //check voor i2c verbindingsverlies
   if (millis() - lastRequestTime > 1300 && !readingSerial) {
     turnRobotOff();
@@ -176,11 +176,11 @@ void handleManualInput(){
 }
 
 void handleAutomaticMode() {
-  if ((positionZ > nextZ + 2 && zAxisIsOut) && nextZ != 0)
+  if ((positionZ > nextZ + 10 && zAxisIsOut) && nextZ != 0)
   {
     z_axisMotor.setManualPower(-255);
     
-  } else if (positionZ < nextZ - 2 && nextZ != 0) {
+  } else if (positionZ < nextZ - 10 && nextZ != 0) {
     z_axisMotor.setManualPower(255);
   } else if (nextZ == 0 && zAxisIsOut) {
     z_axisMotor.setManualPower(-255);

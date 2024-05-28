@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "Joystick.h"
 
+const int manualSpeed = 200;
 
 Joystick::Joystick(int zPin, int deadzone){
     this -> zPin = zPin;
@@ -16,9 +17,10 @@ int Joystick::readZAxis(){
     if(zValue >= 127 - this -> deadzone && zValue <= 127 + this-> deadzone){
         return 0;
     } else if(zValue < 127){
-        zValue = (127 - zValue) * -1;
+        // zValue = (127 - zValue) * -1;
+        zValue = map(zValue, 127, 0, 0, -manualSpeed);
     } else {
-        zValue = map(zValue, 127, 255, 0, 127);
+        zValue = map(zValue, 127, 255, 0, manualSpeed);
     }
     return zValue * -1;
 }
