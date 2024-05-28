@@ -14,22 +14,29 @@
 #define yAxisSwitchUp 12
 #define yAxisSwitchDown 14
 #define allowedYMovement 200
+
+//Magazijn valt om?
 bool isFalling = false;
+
+//Switches boven en onder y as
 bool tYSwitch = false;
 bool bYSwitch = false;
-bool callibrate = true;
 bool zAxisIsOut = true;
+
+//Callibration klaar op arduino 1?
 bool callibrationDone = true;
+//leest arduino 1 serial port uit?
 bool readingSerial = false;
 bool moveZAxisOut = false;
 bool moveZAxisIn = false;
 bool movingZAxis = false;
 
+//laatste keer dat arduino 1 
 unsigned long lastRequestTime = 0;
 unsigned long lastReportTime = 0;
 
-int positionY = 0;
-int positionZ = 0;
+volatile int positionY = 0;
+volatile int positionZ = 0;
 int startY = 0;
 int positionsZ[3] = {-900, -720, -480};
 int nextZ = 0;
@@ -72,11 +79,13 @@ void setup()
 
 void loop()
 {
-  Serial.println(positionZ);
+  Serial.println(positionY);
+  //check voor i2c verbindingsverlies
   if (millis() - lastRequestTime > 1300 && !readingSerial) {
     turnRobotOff();
   }
 
+  //stuurt de positie van de y as naar arduino 1
   if (millis() - lastReportTime > 65) {
     sendMessage(firstArduinoAddress, "py" + String(positionY));
     lastReportTime = millis();
@@ -84,6 +93,7 @@ void loop()
   
   handleEndOfAxisDetection();
 
+  //statemachine
   switch (currentState){
         case automatic:
             checkForFalling();
@@ -112,6 +122,7 @@ void loop()
             break;
   }
 }
+
 
 void receiveEvent(int bytes){
   String msg = "";

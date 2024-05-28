@@ -18,11 +18,11 @@ void Motor:: setManualPower(int axisValue){
     } else if (axisValue < 0){
         digitalWrite(brakePin, LOW);
         digitalWrite(directionPin, LOW);
-        digitalWrite(pwmPin, (axisValue * -1));
+        analogWrite(pwmPin, (axisValue * -1));
 
     } else {
         digitalWrite(brakePin, LOW);
         digitalWrite(directionPin, HIGH);
-        digitalWrite(pwmPin, axisValue);
+        analogWrite(pwmPin, axisValue);
     }
 }
