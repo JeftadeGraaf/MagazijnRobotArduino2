@@ -28,8 +28,8 @@ bool movingZAxis = false;
 unsigned long lastRequestTime = 0;
 unsigned long lastReportTime = 0;
 
-int positionY = 0;
-int positionZ = 0;
+volatile int positionY = 0;
+volatile int positionZ = 0;
 int startY = 0;
 int positionsZ[3] = {-900, -720, -480};
 int nextZ = 0;
